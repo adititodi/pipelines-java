@@ -1,0 +1,47 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+  - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  SONAR_TOKEN: $(SONAR_TOKEN)
+
+steps:
+  - task: JavaToolInstaller@0
+  inputs:
+    versionSpec: '17'
+    jdkArchitectureOption: 'x64'
+    jdkSourceOption: 'PreInstalled'
+
+
+  - task: SonarCloudPrepare@1
+    inputs:
+      SonarCloud: 'SonarQube Cloud'  # Name of your service connection
+      organization: '321114110002'     # e.g., 'adititodi5678'
+      scannerMode: 'CLI'
+      configMode: 'manual'
+      cliProjectKey: '321114110002_JAVA-CI-CD'
+      cliProjectName: 'JAVA CI CD'
+
+  - script: |
+      mvn clean verify sonar:sonar -Dsonar.token=$(SONAR_TOKEN)
+    displayName: 'Build with Maven and Analyze with SonarCloud'
+
+  - task: SonarCloudPublish@1
+    inputs:
+      pollingTimeoutSec: '300'
+    displayName: 'Publish SonarCloud Analysis Results'
+
+  - task: dependency-check@6
+    inputs:
+      projectName: 'JAVA-CI-CD'
+      scanPath: '$(System.DefaultWorkingDirectory)/spring'
+      format: 'HTML'
+      failOnCVSS: '7'
+    displayName: 'OWASP Dependency Check'
