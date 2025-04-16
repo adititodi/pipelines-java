@@ -13,25 +13,34 @@ variables:
   SONAR_TOKEN: $(SONAR_TOKEN)
 
 steps:
+  # Step 1: Install Java and prepare the environment
   - task: JavaToolInstaller@0
     inputs:
       versionSpec: '17'
       jdkArchitectureOption: 'x64'
       jdkSourceOption: 'PreInstalled'
 
+  # Step 2: Prepare for SonarCloud Analysis
   - task: SonarCloudPrepare@1
     inputs:
-      SonarCloud: 'SonarQube Cloud'  # Replace with your actual service connection name
+      SonarCloud: 'SonarQube Cloud'  # Your SonarCloud service connection
       organization: '321114110002'
       scannerMode: 'CLI'
       configMode: 'manual'
       cliProjectKey: '321114110002_JAVA-CI-CD'
       cliProjectName: 'JAVA CI CD'
 
+  # Step 3: Run Maven to build and install dependencies
   - script: |
-      mvn clean verify sonar:sonar -Dsonar.token=$(SONAR_TOKEN)
-    displayName: 'Build with Maven and Analyze with SonarCloud'
+      mvn clean install
+    displayName: 'Install Maven Dependencies'
 
+  # Step 4: Run Maven and SonarCloud analysis
+  - script: |
+      mvn sonar:sonar -Dsonar.token=$(SONAR_TOKEN)
+    displayName: 'Run Maven Build and SonarCloud Analysis'
+
+  # Step 5: Publish SonarCloud results
   - task: SonarCloudPublish@1
     inputs:
       pollingTimeoutSec: '300'
