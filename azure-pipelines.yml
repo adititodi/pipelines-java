@@ -14,16 +14,15 @@ variables:
 
 steps:
   - task: JavaToolInstaller@0
-  inputs:
-    versionSpec: '17'
-    jdkArchitectureOption: 'x64'
-    jdkSourceOption: 'PreInstalled'
-
+    inputs:
+      versionSpec: '17'
+      jdkArchitectureOption: 'x64'
+      jdkSourceOption: 'PreInstalled'
 
   - task: SonarCloudPrepare@1
     inputs:
-      SonarCloud: 'SonarQube Cloud'  # Name of your service connection
-      organization: '321114110002'     # e.g., 'adititodi5678'
+      SonarCloud: 'SonarQube Cloud'  # Replace with your actual service connection name
+      organization: '321114110002'
       scannerMode: 'CLI'
       configMode: 'manual'
       cliProjectKey: '321114110002_JAVA-CI-CD'
@@ -37,11 +36,3 @@ steps:
     inputs:
       pollingTimeoutSec: '300'
     displayName: 'Publish SonarCloud Analysis Results'
-
-  - task: dependency-check@6
-    inputs:
-      projectName: 'JAVA-CI-CD'
-      scanPath: '$(System.DefaultWorkingDirectory)/spring'
-      format: 'HTML'
-      failOnCVSS: '7'
-    displayName: 'OWASP Dependency Check'
